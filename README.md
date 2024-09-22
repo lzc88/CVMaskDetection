@@ -40,7 +40,7 @@
 
     - Insufficient CUDA memory for higher `batch_size` values (GeForce RTX 3070 Ti 8GB)
 
-3. Load the `fasterrcnn_resnet50_fpn` model with default weights and change the box_predictor head to have **3 classes**
+3. Load the `fasterrcnn_resnet50_fpn` model with default weights and change the `box_predictor` head to have **3 classes** (instead of the default 2)
 
     - Feature extractor (trained on COCO dataset) is retained
 
@@ -48,13 +48,13 @@
 
     - Take note that model should be shifted to GPU **before obtaining parameters**, so that the parameters are on the same device
 
-    - `requires_grad == True` indicates that PyTorch will track all operations involving the tensor and constructs a computation graph
+    - `requires_grad == True` indicates that PyTorch will track all operations involving the tensor and constructs a computation graph for the parameters
 
-    - A computation graph is **used during backpropagation to calculate the gradients of the loss function W.R.T. parameters that contributed to the loss**
+    - The computation graph is **used during backpropagation to calculate the gradients of the loss function w.r.t. the parameters that contributed to the loss**
 
         - $L(W, X)=\text{Loss}$ measures the difference between the model's predictions and true target values
 
-        - $W$ are the model parameters and $X$ is the input to the model
+        - $W$ are the model parameters whereas $X$ is the input to the model
 
         - Gradients are essentially the **partial derivatives of the loss function w.r.t. the parameters $W$**
 

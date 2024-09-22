@@ -11,12 +11,14 @@ from torchvision.transforms import v2
 ### DATASET PROCESSING ###
 ##########################
 
-def get_image_data(path_to_xml):
+def get_image_data(img_path, xml_path):
+
+    img_data = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
 
     box_data = []
     label_data = []
 
-    tree = ET.parse(path_to_xml)
+    tree = ET.parse(xml_path)
 
     for object in tree.findall('object'):
 
@@ -32,16 +34,13 @@ def get_image_data(path_to_xml):
         box_data.append(box_coordinates_XYXY)
         label_data.append(box_label)
 
-    return box_data, label_data
+    return img_data, box_data, label_data
 
 # expects RGB image input
-def image_preprocess(IMAGE):
-
-    img = IMAGE.img
-    box_data = IMAGE.box
+def preprocess(img, boxes):
 
     # obtain scale factor for x,y
-    size = IMAGE.size()
+    size = img.shape[0:2]
     x = size[1]
     y = size[0]
     new_x = 512
@@ -50,21 +49,17 @@ def image_preprocess(IMAGE):
     y_scale = new_y/y
 
     # image pre-processing steps
-    new_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    new_img = cv2.resize(new_img, (512, 512), interpolation=cv2.INTER_LINEAR)
+    new_img = cv2.resize(img, (512, 512), interpolation=cv2.INTER_LINEAR)
 
-    new_box = {}
-    for label in box_data:
-
-        box_coordinates = box_data[label]
-
-        new_b = [
-            int(box_coordinates[0]*x_scale),
-            int(box_coordinates[1]*y_scale),
-            int(box_coordinates[2]*x_scale),
-            int(box_coordinates[3]*y_scale)
+    new_boxes = []
+    for box in boxes:
+        new_box = [
+            int(box[0]*x_scale),
+            int(box[1]*y_scale),
+            int(box[2]*x_scale),
+            int(box[3]*y_scale)
         ]
 
-        new_box[label] = new_b
+        new_boxes.append(new_box)
 
-    return new_img, new_box
+    return new_img, new_boxes
